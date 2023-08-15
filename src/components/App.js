@@ -27,6 +27,8 @@ const intialState = {
 };
 
 function reducer(state, action) {
+  const question = state.questions.at(state.index);
+
   switch (action.type) {
     case 'dataReceived':
       return { ...state, questions: action.payload, status: 'ready' };
@@ -39,8 +41,6 @@ function reducer(state, action) {
         secondsRemaining: state.questions.length * SECS_PER_QUESTION,
       };
     case 'newAnswer':
-      const question = state.questions.at(state.index);
-
       return {
         ...state,
         answer: action.payload,
@@ -55,6 +55,10 @@ function reducer(state, action) {
       return {
         ...state,
         status: 'finished',
+        points:
+          action.payload === question.correctOption
+            ? state.points + question.points
+            : state.points,
         highscore:
           state.points > state.highscore ? state.points : state.highscore,
       };
@@ -70,6 +74,8 @@ function reducer(state, action) {
         ...state,
         secondsRemaining: state.secondsRemaining - 1,
         status: state.secondsRemaining === 0 ? 'finished' : state.status,
+        highscore:
+          state.points > state.highscore ? state.points : state.highscore,
       };
     default:
       throw new Error('Action unknown');
